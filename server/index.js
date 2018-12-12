@@ -38,8 +38,13 @@ require('./auth/passport')
 
 const User = require('./routes/User')
 const Room = require('./routes/Room')
+const Furniture = require('./routes/Furniture')
+const RoomUser = require('./routes/RoomUser')
 app.use('/user', User)
 app.use('/room', Room)
+app.use('/furniture', Furniture)
+app.use('/user/:IdUser?/rooms/:IdRoom?', RoomUser)
+
 
 
 app.get('/roomfurniture/:IdRoom', (req, res) => {

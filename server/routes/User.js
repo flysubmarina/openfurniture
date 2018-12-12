@@ -50,18 +50,32 @@ router.route('/register')
 
 router.route('/profile')
     .get(isAuthenticated, (req, res, next) => {
-        console.log('Requsted user: ',req.user);
+        console.log('Requsted user: ', req.user);
         query(`select IdUser, login, type from user where IdUser='${req.user.IdUser}'`).then(data => {
-            if (data.length == 0) {res.status(500).send({ err: 'No user. Account has been deleted' })}
-            else{
+            if (data.length == 0) { res.status(500).send({ err: 'No user. Account has been deleted' }) }
+            else {
                 console.log(data)
-                const {IdUser, login, type} = data[0];
-                res.send({IdUser, login, type})
+                const { IdUser, login, type } = data[0];
+                res.send({ IdUser, login, type })
             }
-        }).catch(err=>{
+        }).catch(err => {
             console.log(err)
         })
 
+    }).put(isAuthenticated, (req, res) => {
+        const { IdUser } = req.user
+        let { login, password, type } = req.body
+        console.log(IdUser, login, password, type)
+        if (login == undefined) login = 'NULL'
+        if (password == undefined) password = 'NULL'
+        if (type == undefined) type = 'NULL'
+        let sql = `update user set login = COALESCE('${login}',login), password = COALESCE('${password != 'NULL' ? hash.cryptPassword(password) : "NULL"}',password), type = COALESCE('${type}',type) where IdUser='${IdUser}'`
+            .replace(/''/g, "'")
+            .replace(/'NULL'/g, "NULL")
+        console.log(sql)
+        query(sql).then(data => {
+            res.send({updated: data.affectedRows > 0})
+        })
     })
 
 module.exports = router;

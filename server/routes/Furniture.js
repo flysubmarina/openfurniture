@@ -16,3 +16,5 @@ router.route('/:IdFurniture?').get((req, res) => {
             res.send(data)
         })
 })
+
+module.exports = router;
