@@ -1,0 +1,18 @@
+##Server##
+☐ Create user routes  @high
+☐ Create furniture routes @high 
+☐ Create room routes @high 
+
+☐ Connect local storage to store current state of furniture in rooms
+☐ Create handlers for request 'change state of furniture in room'
+☐ Create functions for control IoT
+☐ Test RESTful API
+
+☐ Create IoT requests @low 
+☐ Get certificate for heroku server
+
+##Web##
+
+
+
+
