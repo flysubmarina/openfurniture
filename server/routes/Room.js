@@ -9,7 +9,7 @@ router.use(function timeLog(req, res, next) {
     next();
 });
 
-//router.use(isAuthenticated)
+router.use(isAuthenticated)
 
 
 router.route('/:IdRoom?')

@@ -3,7 +3,7 @@ const query = require('../dbConnector')
 const router = express.Router();
 const isAuthenticated = require('../auth/isAuthenticated');
 
-//router.use(isAuthenticated)
+router.use(isAuthenticated)
 
 router
     .route('/:IdFurniture?')
