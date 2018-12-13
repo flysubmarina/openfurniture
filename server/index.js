@@ -4,6 +4,10 @@ const express = require('express')
 const app = express()
 const passport = require('passport')
 const session = require('express-session')
+const redisStore = require('connect-redis')(session)
+const redis = require('redis')
+const client = redis.createClient() 
+
 const expressValidator = require('express-validator')
 const server = http.createServer(app)
 const PORT = process.env.PORT || 3000;
@@ -25,7 +29,7 @@ app.use(cors())
 app.use(cookieParser())
 app.use(session({
     secret: 'my secret',
-    store: new MemoryStore(),
+    store: new redisStore({host:'localhost', port: 6379, client: client, ttl:260}),
     resave: false,
     saveUninitialized: false,
     cookie: {

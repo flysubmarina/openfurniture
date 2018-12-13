@@ -4,7 +4,7 @@
   "description": "Server for openfurniture",
   "main": "index.js",
   "scripts": {
-    "serve": "nodemon server.js",
+    "serve": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Fokin Dmytro",
@@ -12,6 +12,7 @@
   "dependencies": {
     "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
+    "connect-redis": "^3.4.0",
     "cookie-parser": "^1.4.3",
     "cors": "^2.8.5",
     "express": "^4.16.4",
@@ -24,7 +25,8 @@
     "mysql": "^2.16.0",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
-    "passport-local": "^1.0.0"
+    "passport-local": "^1.0.0",
+    "redis": "^2.8.0"
   },
   "devDependencies": {
     "nodemon": "^1.18.8"
