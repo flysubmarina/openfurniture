@@ -30,14 +30,14 @@ router
             query(`delete from furniture where IdFurniture='${IdFurniture}'`).then(data => {
                 res.send(data)
             })
-        }
+        }else res.status(500).send({err: 'Invalid data'})
     }).put((req, res) => {
         const { IdFurniture, name, type, src } = req.body;
         if (IdFurniture) {
             query(`update furniture set name='${name}', type='${type}', src='${src}' where IdFurniture='${IdFurniture}'`).then(data => {
                 res.send(data)
             })
-        }
+        }else res.status(500).send({err: 'Invalid data'})
     })
 
 module.exports = router;
