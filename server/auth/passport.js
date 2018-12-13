@@ -26,14 +26,15 @@ passport.use('local', new LocalStrategy({
 
 }))
 
-passport.serializeUser(function (id, done) {
+passport.serializeUser(function (user, done) {
     console.log("serialize");
-    done(null, id);
+    done(null, user);
 });
 
-passport.deserializeUser(function (id, done) {
+passport.deserializeUser(function (user, done) {
     console.log("deserialize");
-    query(`select IdUser from user where IdUser='${id}'`).then(data => {
+    query(`select * from user where IdUser='${user.IdUser}'`).then(data => {
+        console.log(data);
         done(null, data[0])
     }).catch(err => {
         done(err)

@@ -1,7 +1,7 @@
 ##Server##
-☐ Create user routes  @high
-☐ Create furniture routes @high 
-☐ Create room routes @high 
+✔ Create user routes  @high @done(18-12-13 03:33)
+✔ Create furniture routes @high @done(18-12-13 03:33)
+✔ Create room routes @high @done(18-12-13 03:33)
 
 ☐ Connect local storage to store current state of furniture in rooms
 ☐ Create handlers for request 'change state of furniture in room'
