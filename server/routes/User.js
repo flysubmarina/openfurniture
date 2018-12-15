@@ -6,6 +6,9 @@ const hash = require('../password/hash')
 const passport = require('passport')
 const isAuthenticated = require('../auth/isAuthenticated')
 
+
+
+
 router
     .route('/login')
     .post((req, res, next) => {
@@ -21,6 +24,12 @@ router
     })
 
 
+
+
+router.route('/logout').post((req, res) => {
+    req.logout()
+    res.send({ message: 'Success logout' })
+})
 router.route('/register')
     .post((req, res, next) => {
         req.check('login').len({ min: 6, max: 10 }).withMessage('Login should be greater than 6 and less then 10 symbols')
@@ -29,27 +38,27 @@ router.route('/register')
         let errors = req.validationErrors()
 
         if (errors) {
-            res.status(500).send({ validationErrors: errors })
+            res.status(500).send({ validationErrors: errors, message:'You have some validation errors' })
         } else {
             const { login, password, type } = req.body;
             let hashWord = hash.cryptPassword(password)
             query(`INSERT INTO user(login,password,type) values('${login}','${hashWord}','${type}')`).then(data => {
                 let id = data.insertId
-                let registered  = data.affectedRows > 0
-                if(registered){
-                    const user = {IdUser: id, login: login, password: hashWord, type: type}
+                let registered = data.affectedRows > 0
+                if (registered) {
+                    const user = { IdUser: id, login: login, password: hashWord, type: type }
                     req.login(user, (err) => {
                         res.send({ message: 'Success register you can login', auth: req.isAuthenticated() })
                     })
                 }
-                
+
             }).catch(err => {
                 console.log(err)
             })
         }
     })
 
-router.route('/profile')
+router.route('/account')
     .get(isAuthenticated, (req, res, next) => {
         console.log('Requsted user: ', req.user);
         query(`select IdUser, login, type from user where IdUser='${req.user.IdUser}'`).then(data => {
@@ -65,8 +74,9 @@ router.route('/profile')
 
     }).put(isAuthenticated, (req, res) => {
         const { IdUser } = req.user
+        console.log("Requested user: ", req.user);
         let { login, password, type } = req.body
-        console.log(IdUser, login, password, type)
+        console.log("IdUser: ", IdUser)
         if (login == undefined) login = 'NULL'
         if (password == undefined) password = 'NULL'
         if (type == undefined) type = 'NULL'
