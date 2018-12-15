@@ -60,9 +60,12 @@ router.route('/register')
 
 router.route('/account')
     .get(isAuthenticated, (req, res, next) => {
+        if(!req.user){
+            res.send({wtf: 'true'})
+        }
         console.log('Requsted user: ', req.user);
         query(`select IdUser, login, type from user where IdUser='${req.user.IdUser}'`).then(data => {
-            if (data.length == 0) { res.status(500).send({ err: 'No user. Account has been deleted' }) }
+            if (data.length == 0) { res.send({ err: 'No user. Account has been deleted' }) }
             else {
                 console.log(data)
                 const { IdUser, login, type } = data[0];

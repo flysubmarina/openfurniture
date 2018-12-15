@@ -36,20 +36,29 @@ const getFurnitureHeight = async (IdRoom, IdFurniture) => {
 
 io.on('connection', socket => {
     socket.emit('hello')
-    console.log("hello" + socket.id);
+    console.log("hello " + socket.id);
     socket.on("set_height", (data) => {
         let { value } = data
         setFurnitureHeight(10, 10, value).then(res => {
             console.log(res)
         })
+    })
+    socket.on("ping_get_height", () => {
+       // console.log("pinged");
+        getFurnitureHeight(10, 10).then(data => {
+            let value = data
+            socket.emit("get_height", { value })
+        })
 
     })
 })
 
+app.use(cors({credentials: true, origin: true}))
+
+
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(expressValidator())
-app.use(cors())
 app.use(cookieParser())
 app.use(session({
     secret: 'my secret',
