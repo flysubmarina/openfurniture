@@ -3,46 +3,33 @@ const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
 const passport = require('passport')
-const session = require('express-session')
-const redisStore = require('connect-redis')(session)
-const redis = require('redis')
-const client = redis.createClient()
 const expressValidator = require('express-validator')
-
 const PORT = process.env.PORT || 3000;
 const bodyParser = require('body-parser')
 const cookieParser = require('cookie-parser')
 const cors = require('cors')
-const query = require('./dbConnector')
-
-
 const io = require('socket.io')(server)
-const redisAsyncSet = require('util').promisify(client.set).bind(client)
-const redisAsyncGet = require('util').promisify(client.get).bind(client)
+const arduinoio = io.of('/arduino')
+const clientsio = io.of('/clients')
+const FurnitureController = require('./store_actions/FurnitureController')
+const { setFurnitureHeight, getFurnitureHeight } = FurnitureController
 
 
-
-
-const setFurnitureHeight = async (IdRoom, IdFurniture, height) => {
-    const key = IdRoom.toString().concat('.').concat(IdFurniture.toString())
-    return await redisAsyncSet(key, height.toString())
-
-}
-
-const getFurnitureHeight = async (IdRoom, IdFurniture) => {
-    const key = IdRoom.toString().concat('.').concat(IdFurniture.toString())
-    return await redisAsyncGet(key)
-}
-
-io.on('connection', socket => {
-    socket.emit('hello')
+clientsio.on('connection', socket=>{
     console.log("hello " + socket.id);
     socket.on("set_height", (data) => {
         let { value } = data
+        console.log("get new height = " + value);
         setFurnitureHeight(10, 10, value).then(res => {
-            console.log(res)
+            arduinoio.emit('hello', data)
         })
     })
+})
+
+
+arduinoio.on('connection', socket => {
+    console.log("hello " + socket.id);
+
     socket.on("ping_get_height", () => {
        // console.log("pinged");
         getFurnitureHeight(10, 10).then(data => {
@@ -54,24 +41,13 @@ io.on('connection', socket => {
 })
 
 app.use(cors({credentials: true, origin: true}))
-
-
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
 app.use(expressValidator())
 app.use(cookieParser())
-app.use(session({
-    secret: 'my secret',
-    store: new redisStore({ host: 'localhost', port: 6379, client: client }),
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        maxAge: 3600000
-    }
-}))
-
 app.use(passport.initialize())
 app.use(passport.session())
+
 require('./auth/passport')
 
 
@@ -80,13 +56,14 @@ const Room = require('./routes/Room')
 const Furniture = require('./routes/Furniture')
 const RoomUser = require('./routes/RoomUser')
 const UserProfile = require('./routes/UserProfile')
-app.use('/user', User)
-app.use('/room', Room)
-app.use('/furniture', Furniture)
-app.use('/user/:IdUser?/rooms/:IdRoom?', RoomUser)
-app.use('/user/profile', UserProfile)
 
-app.get('/', (req, res) => {
+app.use('/user', User)
+app.use('/room',passport.authenticate('jwt', {session: false}), Room)
+app.use('/furniture',passport.authenticate('jwt', {session: false}), Furniture)
+app.use('/user/:IdUser?/rooms/:IdRoom?',passport.authenticate('jwt', {session: false}), RoomUser)
+app.use('/user/profile',passport.authenticate('jwt', {session: false}), UserProfile)
+
+app.get('/',passport.authenticate('jwt', {session: false}), (req, res) => {
 
     res.send({ auth: req.isAuthenticated(), userLogin: req.user ? req.user.login : 'You`re not logged in' })
 })

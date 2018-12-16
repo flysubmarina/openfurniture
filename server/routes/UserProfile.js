@@ -2,40 +2,12 @@ const express = require('express')
 
 const router = express.Router();
 const expressValidator = require('express-validator')
-const redisClient = require('redis').createClient()
 const query = require('../dbConnector')
 const hash = require('../password/hash')
 const passport = require('passport')
 const isAuthenticated = require('../auth/isAuthenticated')
-const redisAsyncSet = require('util').promisify(redisClient.set).bind(redisClient)
-const redisAsyncGet = require('util').promisify(redisClient.get).bind(redisClient)
-
-
-
-
-const setFurnitureHeight = async (IdRoom, IdFurniture, height) => {
-    const key = IdRoom.toString().concat('.').concat(IdFurniture.toString())
-    return await redisAsyncSet(key, height.toString())
-
-}
-
-const getFurnitureHeight = async (IdRoom, IdFurniture) => {
-    const key = IdRoom.toString().concat('.').concat(IdFurniture.toString())
-    return await redisAsyncGet(key)
-}
-
-
-redisClient.on('connect', () => {
-    setFurnitureHeight(1,10,15).then(data=>{
-       
-    })
-    getFurnitureHeight(1, 1, 100).then(data=>{
-        console.log(data);
-    })
-
-})
-
-router.use(isAuthenticated)
+const FurnitureController = require('../store_actions/FurnitureController')
+const { setFurnitureHeight, getFurnitureHeight } = FurnitureController
 
 router
     .route('/')
@@ -47,15 +19,15 @@ router
                 INNER JOIN user_profile ON user.IdUser = user_profile.IdUser 
                 INNER JOIN furniture ON user_profile.IdFurniture = furniture.IdFurniture 
                 where user.IdUser='${IdUser}'`).then(data => {
-                    res.send(data)
-                }).catch(err => { console.log(err); })
+                res.send(data)
+            }).catch(err => { console.log(err); })
         } else {
             query(`select furniture.IdFurniture, user_profile.unlock, furniture.type,  user_profile.height, furniture.name, furniture.src from user 
                 INNER JOIN user_profile ON user.IdUser = user_profile.IdUser 
                 INNER JOIN furniture ON user_profile.IdFurniture = furniture.IdFurniture 
                 where user.IdUser='${IdUser}' AND furniture.IdFurniture='${IdFurniture}'`).then(data => {
-                    res.send(data)
-                })
+                res.send(data)
+            })
         }
 
     })

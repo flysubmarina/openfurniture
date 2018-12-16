@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router();
 const expressValidator = require('express-validator')
+const jwt = require('jsonwebtoken')
 const query = require('../dbConnector')
 const hash = require('../password/hash')
 const passport = require('passport')
@@ -12,13 +13,21 @@ const isAuthenticated = require('../auth/isAuthenticated')
 router
     .route('/login')
     .post((req, res, next) => {
-        passport.authenticate('local', (err, user, info) => {
-            console.log(user);
-            req.login(user, err => {
-                if (err) console.log(err)
-                const { IdUser, login, status } = user
-                res.send({ id: IdUser, login: login, status: status })
-            })
+        passport.authenticate('local', { session: false }, (err, user, info) => {
+            if (err || !user) {
+                res.send({ err: 'Something went wrong' })
+            } else {
+                req.login(user, err => {
+                    // if (err) {
+                    //     res.send(err);
+                    // }
+                    const { IdUser, login, status } = user
+                    console.log(user);
+                    const token = jwt.sign(JSON.parse(JSON.stringify(user)), 'mister cat')
+                    res.json({ IdUser, login, status, token })
+                })
+            }
+
 
         })(req, res, next)
     })
@@ -38,7 +47,7 @@ router.route('/register')
         let errors = req.validationErrors()
 
         if (errors) {
-            res.status(500).send({ validationErrors: errors, message:'You have some validation errors' })
+            res.status(500).send({ validationErrors: errors, message: 'You have some validation errors' })
         } else {
             const { login, password, type } = req.body;
             let hashWord = hash.cryptPassword(password)
@@ -59,9 +68,9 @@ router.route('/register')
     })
 
 router.route('/account')
-    .get(isAuthenticated, (req, res, next) => {
-        if(!req.user){
-            res.send({wtf: 'true'})
+    .get(passport.authenticate('jwt', { session: false }), (req, res, next) => {
+        if (!req.user) {
+            res.send({ wtf: 'true' })
         }
         console.log('Requsted user: ', req.user);
         query(`select IdUser, login, type from user where IdUser='${req.user.IdUser}'`).then(data => {
@@ -75,7 +84,7 @@ router.route('/account')
             console.log(err)
         })
 
-    }).put(isAuthenticated, (req, res) => {
+    }).put(passport.authenticate('jwt', { session: false }), (req, res) => {
         const { IdUser } = req.user
         console.log("Requested user: ", req.user);
         let { login, password, type } = req.body

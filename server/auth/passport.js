@@ -1,5 +1,8 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
+const passportJWT = require('passport-jwt')
+const ExtractJWT = passportJWT.ExtractJwt
+const JWTStrategy = passportJWT.Strategy
 const query = require('../dbConnector')
 const hash = require('../password/hash')
 
@@ -26,17 +29,17 @@ passport.use('local', new LocalStrategy({
 
 }))
 
-passport.serializeUser(function (user, done) {
-    console.log("serialize");
-    done(null, user);
-});
-
-passport.deserializeUser(function (user, done) {
-    console.log("deserialize");
-    query(`select * from user where IdUser='${user.IdUser}'`).then(data => {
-        console.log(data);
-        done(null, data[0])
-    }).catch(err => {
-        done(err)
+passport.use(new JWTStrategy({
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    secretOrKey   : 'mister cat'
+},
+function (jwtPayload, cb) {
+    query(`select * from user where IdUser=${jwtPayload.IdUser}`).then(data => {
+        return cb(null, data[0]);
     })
-});
+    .catch(err => {
+        return cb(err);
+    });
+        
+}
+));
