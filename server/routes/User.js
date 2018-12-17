@@ -15,17 +15,17 @@ router
     .post((req, res, next) => {
         passport.authenticate('local', { session: false }, (err, user, info) => {
             if (err || !user) {
-                res.send({ err: 'Something went wrong' })
+                res.send({ err: info})
             } else {
                 req.login(user, err => {
                     // if (err) {
                     //     res.send(err);
                     // }
                     const { IdUser, login, status } = user
-                    console.log(user);
                     const token = jwt.sign(JSON.parse(JSON.stringify(user)), 'mister cat')
                     res.json({ IdUser, login, status, token })
                 })
+                console.log(req.user);
             }
 
 
@@ -35,8 +35,9 @@ router
 
 
 
-router.route('/logout').post((req, res) => {
+router.route('/logout').post((req, res) => {;
     req.logout()
+
     res.send({ message: 'Success logout' })
 })
 router.route('/register')
@@ -72,11 +73,9 @@ router.route('/account')
         if (!req.user) {
             res.send({ wtf: 'true' })
         }
-        console.log('Requsted user: ', req.user);
         query(`select IdUser, login, type from user where IdUser='${req.user.IdUser}'`).then(data => {
             if (data.length == 0) { res.send({ err: 'No user. Account has been deleted' }) }
             else {
-                console.log(data)
                 const { IdUser, login, type } = data[0];
                 res.send({ IdUser, login, type })
             }
