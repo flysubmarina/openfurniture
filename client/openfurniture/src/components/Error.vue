@@ -1,37 +1,41 @@
 <template>
   <div>
-    <b-alert :show="show">{{message}}</b-alert>
+    <b-alert
+      :show="dismissCountDown"
+      dismissible
+      variant="warning"
+      @dismissed="handleDissmiss"
+      @dismiss-count-down="countDownChanged"
+    >{{msg}}</b-alert>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Error",
-  data() {
-    return {
-      show: false
-    };
-  },
   props: {
     msg: {
       type: String,
       default: "Error"
     }
   },
-  methods: {
-    fade() {
-      setTimeout(() => {
-        this.show = false;
-      }, 2000);
-    }
+  data() {
+    return {
+      dismissSecs: 10,
+      dismissCountDown: 0,
+      showDismissibleAlert: false
+    };
   },
-  computed: {
-    message() {
-      return "Error: " + this.props.msg;
+  methods: {
+    handleDissmiss() {
+      this.dismissCountDown = 0;
+      thos.$emit('dissmissed')
+    },
+    countDownChanged(dismissCountDown) {
+      this.dismissCountDown = dismissCountDown;
+    },
+    showAlert() {
+      this.dismissCountDown = this.dismissSecs;
     }
   }
 };
 </script>
-
-<style scoped>
-</style>

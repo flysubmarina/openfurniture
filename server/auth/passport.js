@@ -31,11 +31,17 @@ passport.use('local', new LocalStrategy({
 
 passport.use(new JWTStrategy({
     jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-    secretOrKey   : 'mister cat'
+    secretOrKey   : 'mister cat',
+    passReqToCallback: true
 },
-function (jwtPayload, cb) {
+function (req,jwtPayload, cb) {
     query(`select * from user where IdUser=${jwtPayload.IdUser}`).then(data => {
-        return cb(null, data[0]);
+        if(data[0]){
+   //         req.user = data[0];
+            return cb(null, data[0]);
+        } else {
+            return cb(null, false);
+        }
     })
     .catch(err => {
         return cb(err);

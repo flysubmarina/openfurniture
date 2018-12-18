@@ -1,18 +1,17 @@
 const express = require('express')
-
 const router = express.Router();
 const expressValidator = require('express-validator')
 const query = require('../dbConnector')
 const hash = require('../password/hash')
 const passport = require('passport')
-const isAuthenticated = require('../auth/isAuthenticated')
 const FurnitureController = require('../store_actions/FurnitureController')
 const { setFurnitureHeight, getFurnitureHeight } = FurnitureController
 
 router
-    .route('/')
+    .route('/:IdFurniture?')
     .get((req, res) => {
-        const { IdFurniture } = req.body
+        console.log(req.user);
+        const { IdFurniture } = req.params
         const { IdUser } = req.user
         if (!IdFurniture) {
             query(`select furniture.IdFurniture, user_profile.unlock, furniture.type,  user_profile.height, furniture.name, furniture.src from user 
@@ -32,6 +31,7 @@ router
 
     })
     .post((req, res) => {
+        
         const { IdUser } = req.user
         const { IdFurniture, height } = req.body
         query(`select * from user_profile where IdUser='${IdUser}' and IdFurniture='${IdFurniture}'`).then(profiles => {

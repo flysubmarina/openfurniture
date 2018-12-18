@@ -1,18 +1,19 @@
 <template>
   <b-container class="bv-example-row">
-    <b-row>
-      <b-col cols="8">
-        <b-form novalidate class="form-signin" @submit.prevent="handleLogin">
-          <h1 class="form-signin-heading">Sign in</h1>
+      
+    <b-row >
+      <b-col cols="8" >
+        <b-form novalidated @submit.prevent="handleRegister" >
+          <h1>Sign up</h1>
           <b-form-group
             horizontal
             :label-cols="2"
             label-size="lg"
             label="Small"
-            label-for="validationCustomLogin"
+            label-for="login"
           >
             <b-form-input
-              id="validationCustomLogin"
+              id="login"
               size="lg"
               autocomplete="on"
               required
@@ -20,9 +21,7 @@
               type="text"
               placeholder="Enter your login"
             />
-            
           </b-form-group>
-          <div class="valid-feedback">Looks good!</div>
           <b-form-group
             horizontal
             :label-cols="2"
@@ -40,6 +39,23 @@
               placeholder="Enter your password"
             />
           </b-form-group>
+        <b-form-group
+            horizontal
+            :label-cols="2"
+            label-size="lg"
+            label="Confirm password"
+            label-for="confirmPassword"
+          >
+            <b-form-input
+              id="confirmPassword"
+              size="lg"
+              autocomplete="on"
+              required
+              v-model="confirmPassword"
+              type="password"
+              placeholder="Confirm your password"
+            />
+        </b-form-group>
           <hr>
           <b-button variant="success" class="float-right" size="lg" type="submit">Sign In</b-button>
         </b-form>
@@ -49,23 +65,27 @@
 </template>
 
 <script>
-import { AUTH_REQUEST } from "../store/actions/auth";
+import { REGISTER_REQUEST } from "../store/actions/register";
 export default {
   name: "login",
   data() {
     return {
       login: "",
-      password: ""
+      password: "",
+      confirmPassword: "",
+      validationErrors: ''
     };
   },
   methods: {
-    handleLogin() {
-      const { login, password } = this;
+    handleRegister() {
+      const { login, password, confirmPassword } = this;
       this.$store
-        .dispatch(AUTH_REQUEST, { login, password })
+        .dispatch(REGISTER_REQUEST, { login, password, confirmPassword, type:'user' })
         .then(result => {
           if (result.err) {
-          } else this.$router.push("/");
+              alert(err)
+          }else
+          this.$router.push("/login");
         })
         .catch(err => {
           console.log(err);

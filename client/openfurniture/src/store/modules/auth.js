@@ -22,10 +22,9 @@ const actions = {
                     console.log(data);
                     if (data.err) {
                         if (data.err.message == 'Invalid login or password') {
-                            console.log("object");
                             commit(AUTH_ERROR)
-                            resolve(data)
                         }
+                        resolve(data)
                     } else {
 
                         localStorage.setItem('user-token', data.token)

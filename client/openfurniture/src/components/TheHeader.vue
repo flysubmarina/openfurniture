@@ -7,7 +7,7 @@
         <b-collapse is-nav id="nav_dropdown_collapse">
           <b-navbar-nav>
             <b-nav-item to="/">Home</b-nav-item>
-            <b-button v-if="isProfileLoaded" variant="success" size="sm" class="my-2 my-sm-0">My Room</b-button>
+            <b-button v-if="isProfileLoaded" variant="success" size="sm" class="my-2 my-sm-0 ml-3">My Rooms</b-button>
             <!-- Navbar dropdowns -->
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
@@ -21,7 +21,7 @@
               :text="getProfile.login"
               right
             >
-              <b-dropdown-item href="#">Account</b-dropdown-item>
+              <b-dropdown-item to="/account">Account</b-dropdown-item>
               <b-dropdown-item href="#">Settings</b-dropdown-item>
               <b-dropdown-item to="/logout">Logout</b-dropdown-item>
             </b-nav-item-dropdown>

@@ -1,10 +1,6 @@
 <template>
   <div>
     
-    <b-alert :show="show" variant="primary">{{msg}}</b-alert>
-    <input type="text" name="login" id="login" v-model="login">
-    <input type="password" name="password" id="password" v-model="password">
-    <button @click="handleLogin">Ввійти</button>
   </div>
 </template>
 
@@ -12,7 +8,7 @@
 import Error from '../components/Error.vue'
 import api from "../api/api";
 export default {
-  name: "profile",
+  name: "Account",
   data() {
     return {
       login: "",

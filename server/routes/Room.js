@@ -1,14 +1,34 @@
 const express = require('express')
 const query = require('../dbConnector')
 const router = express.Router();
-const isAuthenticated = require('../auth/isAuthenticated');
 
 router.use(function timeLog(req, res, next) {
     console.log("Cookies: ", req.cookies)
     next();
 });
 
-//router.use(isAuthenticated)
+
+const getAvailiableRooms = () => {
+    return new Promise((resolve, reject) => {
+        query(`SELECT r.IdRoom, r.num, res.IdFurniture, res.name, res.type, res.src FROM openfurniture.room r
+        INNER JOIN (SELECT  rf.IdRoom, f.* FROM openfurniture.room_furniture rf 
+        INNER JOIN openfurniture.furniture f ON rf.IdFurniture = f.IdFurniture) res ON r.IdRoom = res.IdRoom
+        LEFT JOIN  openfurniture.user_room ur ON res.IdRoom = ur.IdRoom
+        WHERE ur.IdRoom IS NULL;`).then(data => {
+            resolve(data)
+        }).catch(err => {
+            reject(err)
+        })
+    })
+}
+
+router.route('/getavailiable', (req, res) => {
+    getAvailiableRooms().then(data => {
+        res.send(data)
+    }).catch(err => {
+        res.send(err)
+    })
+})
 
 
 router.route('/:IdRoom?')

@@ -1,11 +1,11 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import AddPage from './views/AddPage.vue'
-import Profile from './views/Profile.vue'
+import Account from './views/Account.vue'
 import Login from './views/Login.vue'
+import Register from './views/Register.vue'
 import Welcome from './views/Welcome.vue'
 import store from './store'
-import {AUTH_LOGOUT} from './store/actions/auth'
+import { AUTH_LOGOUT } from './store/actions/auth'
 Vue.use(Router)
 
 
@@ -37,24 +37,29 @@ export default new Router({
       beforeEnter: ifNotAuthenticated
     },
     {
-      path:'/logout',
-      beforeEnter(to,from,next){
-        store.dispatch(AUTH_LOGOUT).then(res=>{
+      path: '/logout',
+      beforeEnter(to, from, next) {
+        store.dispatch(AUTH_LOGOUT).then(res => {
           next('/login')
-        }).catch(err=>{
+        }).catch(err => {
           next('/')
         })
       }
     },
     {
-      path:'/account',
-      component: Profile,
+      path: '/account',
+      component: Account,
       beforeEnter: ifAuthenticated
     },
     {
       path: '/',
-      component: Welcome,  
+      component: Welcome,
+    },
+    {
+      path: '/register',
+      component: Register,
+      beforeEnter: ifNotAuthenticated
     }
-    
+
   ]
 })

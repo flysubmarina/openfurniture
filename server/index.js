@@ -1,7 +1,11 @@
 
 const express = require('express')
+const fs = require('fs')
 const app = express()
-const server = require('http').createServer(app)
+const server = require('https').createServer({
+    key: fs.readFileSync('./certificate/server.key'),
+    cert: fs.readFileSync('./certificate/server.crt')
+  },app)
 const passport = require('passport')
 const expressValidator = require('express-validator')
 const PORT = process.env.PORT || 3000;
@@ -68,6 +72,12 @@ app.get('/',passport.authenticate('jwt', {session: false}), (req, res) => {
     res.send({ auth: req.isAuthenticated(), userLogin: req.user ? req.user.login : 'You`re not logged in' })
 })
 
+const {TABLES, isExist} = require('./queryHelpers/isExistInTable')
+
+
 server.listen(PORT, () => {
+    isExist(TABLES.USER.TABLE_NAME, TABLES.USER.FIELDS.ID_USER, 1).then(res=>{
+        console.log(res);
+    })
     console.log(`Server works on port ${PORT}`)
 })
