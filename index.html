@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Socket.IO</title>
+</head>
+
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.2.0/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <div id="app">
+        <input type="range" min="0" max="100" v-model="value" name="range" id="range">
+        {{ value }}
+    </div>
+    <script>
+
+        var app = new Vue({
+            el: '#app',
+            data: {
+                value: 0,
+                socket: io('http://localhost:3000/clients'),
+                message: 'Hello Vue!'
+            },
+            watch:{
+                value(newVal){
+                    this.socket.emit("set_height", {value: newVal})
+                }
+            }
+        })
+
+    </script>
+
+</body>
+
+</html>

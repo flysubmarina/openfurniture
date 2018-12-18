@@ -11,8 +11,7 @@ router.use(function timeLog(req, res, next) {
 const getAvailiableRooms = () => {
     return new Promise((resolve, reject) => {
         query(`SELECT r.IdRoom, r.num, res.IdFurniture, res.name, res.type, res.src FROM openfurniture.room r
-        INNER JOIN (SELECT  rf.IdRoom, f.* FROM openfurniture.room_furniture rf 
-        INNER JOIN openfurniture.furniture f ON rf.IdFurniture = f.IdFurniture) res ON r.IdRoom = res.IdRoom
+        INNER JOIN (SELECT  rf.IdRoom, f.* FROM openfurniture.room_furniture rf INNER JOIN openfurniture.furniture f ON rf.IdFurniture = f.IdFurniture) res ON r.IdRoom = res.IdRoom
         LEFT JOIN  openfurniture.user_room ur ON res.IdRoom = ur.IdRoom
         WHERE ur.IdRoom IS NULL;`).then(data => {
             resolve(data)
@@ -22,7 +21,7 @@ const getAvailiableRooms = () => {
     })
 }
 
-router.route('/getavailiable', (req, res) => {
+router.route('/getavailiable').get((req, res) => {
     getAvailiableRooms().then(data => {
         res.send(data)
     }).catch(err => {
