@@ -8,23 +8,50 @@ app.set('port', process.env.PORT || 3002);
 app.use(express.bodyParser());
 
 
-const board = new five.Board({port: 'COM4', repl: false})
-board.on("ready", function() {
+let blocked = false;
+
+const board = new five.Board({ port: 'COM4', repl: false })
+board.on("ready", function () {
 
 });
 
-socket.on('hello', ({value})=>{
-  console.log("get hello: " + value);
-  if(board.isReady){
-    board.pinMode(13, board.MODES.OUTPUT)
-    board.digitalWrite(13, board.pins[13].value? 0: 1)
+socket.on('hello', ({ value }) => {
+  if (!blocked) {
+    console.log("get hello: " + value);
+    if (board.isReady) {
+      board.pinMode(13, board.MODES.OUTPUT)
+      board.digitalWrite(13, board.pins[13].value ? 0 : 1)
+    }
   }
+})
+app.get('/', (req, res) => {
+  res.send("hello")
+})
+app.post('/setstate', (req, res) => {
+  const { height, unlock} = req.body
+  blocked = !unlock
+  if (!blocked) {
+    if (board.isReady) {
+      console.log("get post request")
+      board.pinMode(13, board.MODES.OUTPUT)
+      board.digitalWrite(13, 1)
+      board.wait(1000, () => {
+        board.digitalWrite(13, 0)
+      })
+      res.send({msg:"OK"})
+      console.log("ok");
+
+    } else {
+      res.send({ msg: "Device is not ready" })
+    }
+  }else{
+    res.send({ msg: "Device is blocked" })
+  }
+  
 })
 
 
 
-
-
-http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(app.get('port'), function () {
   console.log('Express server listening on port ' + app.get('port'));
 });
