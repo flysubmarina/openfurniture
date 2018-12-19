@@ -7,6 +7,18 @@ router.use(function timeLog(req, res, next) {
     next();
 });
 
+const getAppropriateRooms = (req)=>{
+    return new Promise((resolve, reject)=>{
+        query(`SELECT cnt.*, MAX(cnt.count) as max FROM(SELECT usp.IdUser, br.IdRoom, usp.IdFurniture , COUNT(*) as count FROM openfurniture.user_profile usp LEFT JOIN (SELECT DISTINCT  r.IdRoom, r.num, res.IdFurniture, res.name, res.type, res.src FROM openfurniture.room r
+            INNER JOIN (SELECT  rf.IdRoom, f.* FROM openfurniture.room_furniture rf INNER JOIN openfurniture.furniture f ON rf.IdFurniture = f.IdFurniture) res ON r.IdRoom = res.IdRoom
+            LEFT JOIN  openfurniture.user_room ur ON res.IdRoom = ur.IdRoom
+            WHERE ur.IdRoom IS NULL) br ON usp.IdFurniture = br.IdFurniture WHERE usp.IdUser=63 GROUP BY br.IdRoom) cnt`).then(data => {
+                resolve(data)
+            }).catch(err=>{
+                reject(err)
+            })
+    })
+}
 
 const getAvailiableRooms = () => {
     return new Promise((resolve, reject) => {
@@ -26,6 +38,13 @@ router.route('/getavailiable').get((req, res) => {
         res.send(data)
     }).catch(err => {
         res.send(err)
+    })
+})
+router.route('/good').get((req, res) => {
+    getAppropriateRooms(req).then(data=>{
+        res.send(data)
+    }).catch(err=>{
+        res.send({err: err})
     })
 })
 
