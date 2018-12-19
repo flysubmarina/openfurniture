@@ -35,7 +35,8 @@ router
 
 
 
-router.route('/logout').post((req, res) => {
+router.route('/logout')
+.post((req, res) => {
     ;
     req.logout()
 
