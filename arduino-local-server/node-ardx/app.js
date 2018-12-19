@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const five = require('johnny-five')
-let socket = require('socket.io-client')('http://localhost:3000/arduino')
+let socket = require('socket.io-client')('https://localhost:3000/arduino', {secure: true, rejectUnauthorized: false})
 const app = express();
 app.set('port', process.env.PORT || 3002);
 app.use(express.bodyParser());

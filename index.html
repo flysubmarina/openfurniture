@@ -21,7 +21,7 @@
             el: '#app',
             data: {
                 value: 0,
-                socket: io('http://localhost:3000/clients'),
+                socket: io('https://localhost:3000/clients', {secure: true, }),
                 message: 'Hello Vue!'
             },
             watch:{
