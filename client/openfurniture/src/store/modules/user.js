@@ -6,6 +6,8 @@ import api from '../../api/api'
 import axios from 'axios'
 import Vue from 'vue'
 import { AUTH_LOGOUT } from '../actions/auth'
+import { resolve } from 'path';
+import { rejects } from 'assert';
 
 const state = {
     status: '',
@@ -22,22 +24,29 @@ const getters = {
 
 const actions = {
     [USER_REQUEST]: ({ commit, dispatch, rootState }) => {
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + rootState.auth.token
-        commit(USER_REQUEST)
-        api.get('/user/account')
-            .then(({ data }) => {
-                console.log('Success auth ' + data.login);
-                commit(USER_SUCCESS, data)
-            })
-            .catch(resp => {
-                console.log();
-                commit(USER_ERROR)
-                // if resp is unauthorized, logout, to
-                dispatch(AUTH_LOGOUT)
-            })
+        api.defaults.headers.common['Authorization'] = 'Bearer ' +rootState.auth.token
+        return new Promise((resolve, reject)=>{
+            commit(USER_REQUEST)
+            api.get('/user/account')
+                .then(({ data }) => {
+                   
+                    console.log('Success auth ', data);
+                    
+                    commit(USER_SUCCESS, data)
+                    resolve(state.status)
+                })
+                .catch(resp => {
+                    console.log("error");
+                    commit(USER_ERROR)
+                    // if resp is unauthorized, logout, to
+                    dispatch(AUTH_LOGOUT)
+                    reject(state.status)
+                })
+        })
+       
     },
     [USER_UPDATE]: ({ commit, dispatch, rootState }) => {
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + rootState.auth.token
+      //  api.defaults.headers.common['Authorization'] = 'Bearer ' + rootState.auth.token
         commit(USER_UPDATE)
         api.put('/user/account')
     }
@@ -49,6 +58,7 @@ const mutations = {
         state.status = 'loading'
     },
     [USER_SUCCESS]: (state, resp) => {
+        console.log('should success');
         state.status = 'success'
         Vue.set(state, 'profile', resp)
     },

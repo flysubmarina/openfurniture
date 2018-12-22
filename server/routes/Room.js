@@ -7,16 +7,16 @@ router.use(function timeLog(req, res, next) {
     next();
 });
 
-const getAppropriateRooms = (req)=>{
-    return new Promise((resolve, reject)=>{
+const getAppropriateRooms = (req) => {
+    return new Promise((resolve, reject) => {
         query(`SELECT cnt.*, MAX(cnt.count) as max FROM(SELECT usp.IdUser, br.IdRoom, usp.IdFurniture , COUNT(*) as count FROM openfurniture.user_profile usp LEFT JOIN (SELECT DISTINCT  r.IdRoom, r.num, res.IdFurniture, res.name, res.type, res.src FROM openfurniture.room r
             INNER JOIN (SELECT  rf.IdRoom, f.* FROM openfurniture.room_furniture rf INNER JOIN openfurniture.furniture f ON rf.IdFurniture = f.IdFurniture) res ON r.IdRoom = res.IdRoom
             LEFT JOIN  openfurniture.user_room ur ON res.IdRoom = ur.IdRoom
             WHERE ur.IdRoom IS NULL) br ON usp.IdFurniture = br.IdFurniture WHERE usp.IdUser=63 GROUP BY br.IdRoom) cnt`).then(data => {
-                resolve(data)
-            }).catch(err=>{
-                reject(err)
-            })
+            resolve(data)
+        }).catch(err => {
+            reject(err)
+        })
     })
 }
 
@@ -32,6 +32,14 @@ const getAvailiableRooms = () => {
         })
     })
 }
+router.route('/setstate')
+      .put((req, res) => {
+          console.log('gg')
+        const { id, height, unlock } = req.body
+        query(`update room_furniture set room_furniture.height='${height}', room_furniture.unlock='${unlock}' where room_furniture.id='${id}'`).then(result => {
+            res.send({ updated: result.affectedRows > 0 })
+        })
+    })
 
 router.route('/getavailiable').get((req, res) => {
     getAvailiableRooms().then(data => {
@@ -41,10 +49,10 @@ router.route('/getavailiable').get((req, res) => {
     })
 })
 router.route('/good').get((req, res) => {
-    getAppropriateRooms(req).then(data=>{
+    getAppropriateRooms(req).then(data => {
         res.send(data)
-    }).catch(err=>{
-        res.send({err: err})
+    }).catch(err => {
+        res.send({ err: err })
     })
 })
 
@@ -100,6 +108,11 @@ router.route('/:IdRoom?')
             })
         }
     })
+
+
+
+
+
 
 router.route('/:IdRoom?/furniture')
     .get((req, res) => {

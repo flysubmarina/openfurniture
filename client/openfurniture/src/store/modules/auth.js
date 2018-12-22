@@ -3,6 +3,7 @@ import { USER_REQUEST } from '../actions/user'
 import api from '../../api/api'
 import axios from 'axios'
 const state = {
+    number: localStorage.getItem('number') || 0,
     token: localStorage.getItem('user-token') || '',
     status: '',
     hasLoadedOnce: false
@@ -21,6 +22,7 @@ const actions = {
                 .then(({ data }) => {
                     console.log(data);
                     if (data.err) {
+
                         if (data.err.message == 'Invalid login or password') {
                             commit(AUTH_ERROR)
                         }
@@ -30,9 +32,8 @@ const actions = {
                         localStorage.setItem('user-token', data.token)
                         // Here set the header of your ajax library to the token value.
                         // example with axios
-                        axios.defaults.headers.common['Authorization'] = 'Bearer ' + data.token
-                        console.log(axios.defaults.headers.common['Authorization']);
-                        // axios.defaults.headers.common['Authorization'] = resp.token
+
+                        
                         commit(AUTH_SUCCESS, data)
                         dispatch(USER_REQUEST)
                         resolve(data)

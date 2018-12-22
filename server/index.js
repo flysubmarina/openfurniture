@@ -3,10 +3,11 @@ const express = require('express')
 const fs = require('fs')
 const axios = require('axios')
 const app = express()
-const server = require('https').createServer({
-    key: fs.readFileSync('./certificate/server.key'),
-    cert: fs.readFileSync('./certificate/server.crt')
-}, app)
+// const server = require('https').createServer({
+//     key: fs.readFileSync('./certificate/server.key'),
+//     cert: fs.readFileSync('./certificate/server.crt')
+// }, app)
+const server = require('http').createServer(app)
 const passport = require('passport')
 const expressValidator = require('express-validator')
 const PORT = process.env.PORT || 3000;

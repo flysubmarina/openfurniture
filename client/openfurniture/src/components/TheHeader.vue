@@ -7,11 +7,14 @@
         <b-collapse is-nav id="nav_dropdown_collapse">
           <b-navbar-nav>
             <b-nav-item to="/">Home</b-nav-item>
-            <b-button v-if="isProfileLoaded" variant="success" size="sm" class="my-2 my-sm-0 ml-3">My Rooms</b-button>
+            <b-button variant="danger" v-if="isAdmin" @click="$router.push('/dashboard')" class="my-sm-0 ml-3">Admin dashboard</b-button>
+            <b-button @click="$router.push('/controll')" v-if="isProfileLoaded" variant="success" size="sm" class="my-sm-0 ml-3">Controll state</b-button>
+            <b-button @click="$router.push('/rooms')" v-if="isProfileLoaded" variant="success" size="sm" class="my-sm-0 ml-3">Buy rooms</b-button>
             <!-- Navbar dropdowns -->
           </b-navbar-nav>
           <b-navbar-nav class="ml-auto">
-            <b-nav-item v-if="!isAuthenticated" to="/login">Login</b-nav-item>
+            <b-nav-item v-if="!isAuthenticated" to="/login">Sign In</b-nav-item>
+             <b-nav-item v-if="!isAuthenticated" to="/register">Sign Up</b-nav-item>
             <b-nav-item-dropdown text="Lang" right>
               <b-dropdown-item href="#">EN</b-dropdown-item>
               <b-dropdown-item href="#">UA</b-dropdown-item>
@@ -22,7 +25,6 @@
               right
             >
               <b-dropdown-item to="/account">Account</b-dropdown-item>
-              <b-dropdown-item href="#">Settings</b-dropdown-item>
               <b-dropdown-item to="/logout">Logout</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
@@ -44,7 +46,7 @@ export default {
     getProfile() {
       return this.$store.getters.getProfile;
     },
-    ...mapGetters(["isAuthenticated", "isProfileLoaded"])
+    ...mapGetters(["isAuthenticated", "isProfileLoaded", "isAdmin"])
   }
 };
 </script>

@@ -10,12 +10,13 @@ router.route('/')
         } else {
             if (!IdRoom) {
                 query(`select * from user inner join user_room on user.IdUser=user_room.IdUser ` +
-                    `inner join room on user_room.IdRoom=room.IdRoom where user.IdUser='${IdUser}'`)
+                    `inner join room on user_room.IdRoom=room.IdRoom inner join room_furniture on room.IdRoom=room_furniture.IdRoom
+                    inner join furniture on room_furniture.IdFurniture=furniture.IdFurniture where user.IdUser='${IdUser}'`)
                     .then(data => {
-                        if (data.length == 0) res.status(500).send({ err: 'User do not live in any room right now' })
+                        if (data.length == 0) res.send({ err: 'User do not live in any room right now' })
                         else {
-                            const { login, type, IdRoom, IdUser, num } = data[0];
-                            res.send({ login, type, IdRoom, IdUser, num })
+                         //   const { login, type, IdRoom, IdUser, num } = data[0];
+                            res.send(data)
                         }
 
                     })
@@ -23,7 +24,7 @@ router.route('/')
                 query(`select * from user inner join user_room on user.IdUser=user_room.IdUser ` +
                     `inner join room on user_room.IdRoom=room.IdRoom where room.IdRoom='${IdRoom}' and user.IdUser='${IdUser}'`)
                     .then(data => {
-                        if (data.length == 0) res.status(500).send({ err: 'User do not live in this room' })
+                        if (data.length == 0) res.send({ err: 'User do not live in this room' })
                         else {
                             const { login, type, IdRoom, IdUser, num } = data[0];
                             res.send({ login, type, IdRoom, IdUser, num })

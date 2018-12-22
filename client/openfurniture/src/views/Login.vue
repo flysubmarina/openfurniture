@@ -65,6 +65,7 @@ export default {
         .dispatch(AUTH_REQUEST, { login, password })
         .then(result => {
           if (result.err) {
+            console.log(result.err);
           } else this.$router.push("/");
         })
         .catch(err => {

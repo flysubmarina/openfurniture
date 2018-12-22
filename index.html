@@ -21,15 +21,40 @@
             el: '#app',
             data: {
                 value: 0,
-                socket: io('https://localhost:3000/clients', {secure: true, }),
+                //socket: io('https://localhost:3000/clients', { secure: true, }),
                 message: 'Hello Vue!'
             },
-            watch:{
-                value(newVal){
-                    this.socket.emit("set_height", {value: newVal})
+            watch: {
+                value(newVal) {
+                    this.socket.emit("set_height", { value: newVal })
                 }
             }
         })
+
+    </script>
+
+
+    <script>
+        function getRndInteger(min, max) {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+        let arr = [];
+        for (let i = 1; i <= 100; i++) arr[i - 1] = i
+
+        arr.sort((a, b) => Math.random() - 0.5);
+        //  console.log(arr);
+
+        let rndIndex = getRndInteger(0, 99);
+        let saved = arr.splice(rndIndex, 1)[0]
+
+        function getHideElement(arr) {
+            const n = arr.length + 1
+            let expectedSum = (n * (n + 1)) / 2
+            let realSum = arr.reduce((acc, x) => acc + x)
+            return expectedSum - realSum
+        }
+        console.log(saved);
+        console.log(getHideElement(arr));
 
     </script>
 

@@ -1,11 +1,10 @@
 <template>
   <div>
-    <Error v-for="(err, index) in errors" :key="index" :ref="index" :msg="err.msg"/>
     <b-jumbotron>
       <template slot="header">Hello {{getProfile.login?getProfile.login:'guest'}}</template>
       <template slot="lead">Welcome to OpenFurniture</template>
       <hr class="my-4">
-      <p>We can help you to customize your space in hotel</p>
+      <p>We can help you to customize your space in hotel {{getNumber}}</p>
       <b-btn @click="handleClick" variant="success" size="lg">Get Started</b-btn>
     </b-jumbotron>
   </div>
@@ -19,38 +18,29 @@ export default {
   name: "Welcome",
   data() {
     return {
-      errors:[
-        {
-          msg: 'Invalid'
-        },
-        {
-          msg: 'Invalid'
-        },
-        {
-          msg: 'Invalid'
-        }
-      ]
+      errors: []
     };
   },
   components: {
     Error
   },
-  created() {
+  mounted() {
+    console.log();
     if (this.isAuthenticated) this.handleUserRequest();
-   console.log(this.$refs);
+    //else console.log("bad error");
   },
   computed: {
-    ...mapGetters(["getProfile", "isAuthenticated"])
+    ...mapGetters(["getProfile", "isAuthenticated"]),
+    getNumber(){
+      return this.$store.state.number
+    }
   },
   methods: {
     handleUserRequest() {
       this.$store.dispatch(USER_REQUEST);
     },
-    handleClick(e){
-      console.log(e);
-       this.$refs[0][0].showAlert();
-       this.$refs[1][0].showAlert();
-       this.$refs[2][0].showAlert();
+    handleClick(e) {
+      localStorage.setItem('number', 10)
     }
   }
 };
