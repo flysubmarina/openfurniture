@@ -1,6 +1,5 @@
 <template>
   <div>
-    
     <b-table striped hover :items="provider"></b-table>
   </div>
 </template>
@@ -22,14 +21,12 @@ export default {
   },
 
   data() {
-    return {
-
-    };
+    return {};
   },
   mounted() {
-      if(this.byIdComboBox){
-          console.log("boxed");
-      }
+    if (this.byIdComboBox) {
+      console.log("boxed");
+    }
   },
   methods: {
     provider(ctx) {}
