@@ -1,5 +1,6 @@
 <template>
   <b-container class="bv-example-row">
+    <b-alert variant="danger" :show="!!err" v-for="(err, index) in errors" :key="index">{{err.msg}}</b-alert>
     <b-row>
       <b-col cols="8">
         <b-form novalidate class="form-signin" @submit.prevent="handleLogin">
@@ -20,9 +21,7 @@
               type="text"
               placeholder="Enter your login"
             />
-            
           </b-form-group>
-          <div class="valid-feedback">Looks good!</div>
           <b-form-group
             horizontal
             :label-cols="2"
@@ -54,6 +53,7 @@ export default {
   name: "login",
   data() {
     return {
+      errors: [],
       login: "",
       password: ""
     };
@@ -65,7 +65,8 @@ export default {
         .dispatch(AUTH_REQUEST, { login, password })
         .then(result => {
           if (result.err) {
-            console.log(result.err);
+            this.errors = [];
+            this.errors.push({ msg: result.err.message });
           } else this.$router.push("/");
         })
         .catch(err => {
