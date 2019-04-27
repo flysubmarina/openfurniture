@@ -1,3 +1,24 @@
+<i18n>
+{
+  "en": {
+    "Hello": "Hello",
+    "WelcometoOpenFurniture": "Welcome to OpenFurniture"
+  },
+  "ua": {
+    "Login":"Логін",
+    "Password":"Пароль",
+    "Enter your login":"Введіть ваш логін",
+    "Enter your password":"Введіть ваш пароль",
+    "Sign Up":"Реєстрація",
+    "Confirm your password":"Подтвердіть ваш пароль",
+    "Confirm password":"Підтвердіть пароль",
+    "Admin":"Адміністратор"
+  }
+}
+</i18n>
+
+
+
 <template>
   <div class="mt-5">
     <b-alert variant="danger" :show="!!err" v-for="(err, index) in errors" :key="index">{{err.msg}}</b-alert>
@@ -5,12 +26,12 @@
       <b-row>
         <b-col class="mx-auto" cols="8">
           <b-form novalidated @submit.prevent="handleRegister">
-            <h1>Sign up</h1>
+            <h1>{{$t('Sign Up')}}</h1>
             <b-form-group
               horizontal
               :label-cols="2"
               label-size="lg"
-              label="Login"
+              :label="$t('Login')"
               label-for="login"
             >
               <b-form-input
@@ -20,14 +41,14 @@
                 required
                 v-model="login"
                 type="text"
-                placeholder="Enter your login"
+                :placeholder="$t('Enter your login')"
               />
             </b-form-group>
             <b-form-group
               horizontal
               :label-cols="2"
               label-size="lg"
-              label="Password"
+              :label="$t('Password')"
               label-for="password"
             >
               <b-form-input
@@ -37,14 +58,14 @@
                 required
                 v-model="password"
                 type="password"
-                placeholder="Enter your password"
+                :placeholder="$t('Enter your password')"
               />
             </b-form-group>
             <b-form-group
               horizontal
               :label-cols="2"
               label-size="lg"
-              label="Confirm password"
+              :label="$t('Confirm password')"
               label-for="confirmPassword"
             >
               <b-form-input
@@ -54,14 +75,14 @@
                 required
                 v-model="confirmPassword"
                 type="password"
-                placeholder="Confirm your password"
+                :placeholder="$t('Confirm your password')"
               />
             </b-form-group>
             <b-form-group
-            horizontal
-              :label-cols="2"
+              horizontal
+              :label-cols="3"
               label-size="lg"
-              label="Admin"
+              :label="$t('Admin')"
               label-for="usertype"
             >
               <b-form-checkbox

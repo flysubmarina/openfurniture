@@ -1,10 +1,25 @@
+<i18n>
+{
+  "en": {
+    "Buy rooms": "Buy rooms"
+  },
+  "ua": {
+    "Buy rooms": "Купити кімнату",
+    "No availiable rooms": "Нема доступних кімнат",
+    "Room number:":"Кімната номер:",
+    "Get Started": "Розпочати",
+    "Buy this room":"Купити цю кімнату"
+  }
+}
+</i18n>
+
 <template>
   <b-container class="bv-example-row">
     <b-row>
       <b-col cols="6">
-        <h1 class="my-4">Buy rooms</h1>
+        <h1 class="my-4">{{$t('Buy rooms')}}</h1>
         <b-card v-if="rooms.length == 0">
-          <p class="card-text text-center">No availiable rooms</p>
+          <p class="card-text text-center">{{$t('No availiable rooms')}}</p>
         </b-card>
         <template v-for="room in rooms">
           <b-card class="mb-1" :key="room[0]">
@@ -15,7 +30,7 @@
                 href="#"
                 v-b-toggle="'collapse'+room[0]"
                 variant="info"
-              >Room number: {{Object.values(room[1])[0][0].num}}</b-btn>
+              >{{$t('Room number:')}} {{Object.values(room[1])[0][0].num}}</b-btn>
             </b-card-header>
             <b-collapse :id="'collapse'+room[0]" visible accordion="my-accordion" role="tabpanel">
               <b-card-body>
@@ -38,7 +53,7 @@
                   :disabled="isBusy"
                   variant="success"
                   @click="handleBuy(room[0])"
-                >Buy this room</b-button>
+                >{{$t('Buy this room')}}</b-button>
               </b-card-body>
             </b-collapse>
           </b-card>
@@ -101,7 +116,7 @@ export default {
       this.isBusy = true;
       const { IdUser } = this.getProfile;
       api
-        .post(`/user/${IdUser}/rooms/${id}`)
+        .post(`/user/rooms`, {IdRoom: id})
         .then(res => {
           if (res.status != 200) {
             alert(res.data.err);

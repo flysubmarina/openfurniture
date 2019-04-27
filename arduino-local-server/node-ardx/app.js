@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const path = require('path');
 const five = require('johnny-five')
-let socket = require('socket.io-client')('https://localhost:3000/arduino', {secure: true, rejectUnauthorized: false})
+let socket = require('socket.io-client')('http://localhost:3000/arduino')
 const app = express();
 app.set('port', process.env.PORT || 3002);
 app.use(express.bodyParser());
@@ -10,7 +10,7 @@ app.use(express.bodyParser());
 
 let blocked = false;
 
-const board = new five.Board({ port: 'COM4', repl: false })
+const board = new five.Board({ port: 'COM5', repl: false })
 board.on("ready", function () {
 
 });
@@ -20,7 +20,10 @@ socket.on('hello', ({ value }) => {
     console.log("get hello: " + value);
     if (board.isReady) {
       board.pinMode(13, board.MODES.OUTPUT)
-      board.digitalWrite(13, board.pins[13].value ? 0 : 1)
+      board.digitalWrite(13, 1)
+      board.wait(1000, () => {
+        board.digitalWrite(13, 0)
+      })
     }
   }
 })
@@ -29,10 +32,10 @@ app.get('/', (req, res) => {
 })
 app.post('/setstate', (req, res) => {
   const { height, unlock} = req.body
-  blocked = !unlock
+  //blocked = !unlock
   if (!blocked) {
     if (board.isReady) {
-      console.log("get post request")
+      console.log("get the Job man")
       board.pinMode(13, board.MODES.OUTPUT)
       board.digitalWrite(13, 1)
       board.wait(1000, () => {

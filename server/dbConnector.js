@@ -5,7 +5,7 @@ const connectionConfig = {
     user: "openfurniture",
     password: "Yu767K-?u1J2",
     database: "openfurniture",
-    connectTimeout: 10000,
+    connectTimeout: 40000,
 }
 
 let connection = mysql.createConnection(connectionConfig);
@@ -46,7 +46,9 @@ const query = sql => {
 
     return new Promise((resolve, reject) => {
         connection.query(sql, (err, result) => {
-            if (err) reject(err)
+            if (err) {
+               reject(err)
+            }
             resolve(result)
         })
     })

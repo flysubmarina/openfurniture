@@ -3,10 +3,7 @@ const express = require('express')
 const fs = require('fs')
 const axios = require('axios')
 const app = express()
-// const server = require('https').createServer({
-//     key: fs.readFileSync('./certificate/server.key'),
-//     cert: fs.readFileSync('./certificate/server.crt')
-// }, app)
+const query = require('./dbConnector')
 const server = require('http').createServer(app)
 const passport = require('passport')
 const expressValidator = require('express-validator')
@@ -40,7 +37,7 @@ const UserProfile = require('./routes/UserProfile')
 app.use('/user', User)
 app.use('/room', passport.authenticate('jwt', { session: false }), Room)
 app.use('/furniture', passport.authenticate('jwt', { session: false }), Furniture)
-app.use('/user/:IdUser?/rooms/:IdRoom?', passport.authenticate('jwt', { session: false }), RoomUser)
+app.use('/user/rooms', passport.authenticate('jwt', { session: false }), RoomUser)
 app.use('/user/profile', passport.authenticate('jwt', { session: false }), UserProfile)
 
 
@@ -48,11 +45,9 @@ app.use('/user/profile', passport.authenticate('jwt', { session: false }), UserP
 clientsio.on('connection', socket => {
     console.log("hello " + socket.id);
     socket.on("set_height", (data) => {
-        let { value } = data
-        console.log("get new height = " + value);
-        setFurnitureHeight(10, 10, value).then(res => {
-            arduinoio.emit('hello', data)
-        })
+        let { value, unlock } = data
+        console.log("get new height = " + value + "unlock = " + unlock);
+       
     })
 })
 
@@ -62,16 +57,25 @@ arduinoio.on('connection', socket => {
 
     socket.on("ping_get_height", () => {
         // console.log("pinged");
-        getFurnitureHeight(10, 10).then(data => {
-            let value = data
-            socket.emit("get_height", { value })
-        })
 
     })
 })
-
+app.post('/setroom',(req, res) => {
+    const { IdRoom, height, unlock } = req.body;
+    query(`update room_furniture set room_furniture.height='${height}', room_furniture.unlock='${unlock}' where room_furniture.IdRoom='${IdRoom}'`).then(result => {
+        axios.post('http://localhost:3002/setstate', { height, unlock })
+        .then(data => {
+            let json =  CircularJSON.stringify(data.status)
+            res.send(json)
+        }).catch(err => {
+            console.log(err);
+            res.send("error")
+        })
+    })
+})
 
 app.post('/setstate', (req, res) => {
+    console.log("object");
     const { height, unlock } = req.body
     axios.post('http://localhost:3002/setstate', { height, unlock })
         .then(data => {
@@ -95,5 +99,5 @@ server.listen(PORT, () => {
     isExist(TABLES.USER.TABLE_NAME, TABLES.USER.FIELDS.ID_USER, 1).then(res => {
         console.log(res);
     })
-    console.log(`Server works on port ${PORT}`)
+    console.log(`Server works lol ${PORT}`)
 })

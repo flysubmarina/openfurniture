@@ -7,6 +7,7 @@ import Welcome from './views/Welcome.vue'
 import Rooms from './views/Rooms.vue'
 import Controll from './views/Controll.vue'
 import Dashboard from './views/Dashboard.vue'
+import UserHeight from './views/UserHeight'
 import store from './store'
 import { AUTH_LOGOUT } from './store/actions/auth'
 Vue.use(Router)
@@ -43,6 +44,11 @@ export default new Router({
   mode: 'history',
   base: process.env.BASE_URL,
   routes: [
+    {
+      path: '/userheight',
+      component: UserHeight,
+      beforeEnter: ifAuthenticated
+    },
     {
       path: '/controll',
       component: Controll,

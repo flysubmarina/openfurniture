@@ -24,14 +24,14 @@ const getters = {
 
 const actions = {
     [USER_REQUEST]: ({ commit, dispatch, rootState }) => {
-        api.defaults.headers.common['Authorization'] = 'Bearer ' +rootState.auth.token
-        return new Promise((resolve, reject)=>{
+        api.defaults.headers.common['Authorization'] = 'Bearer ' + rootState.auth.token
+        return new Promise((resolve, reject) => {
             commit(USER_REQUEST)
             api.get('/user/account')
                 .then(({ data }) => {
-                   
+
                     console.log('Success auth ', data);
-                    
+
                     commit(USER_SUCCESS, data)
                     resolve(state.status)
                 })
@@ -43,12 +43,26 @@ const actions = {
                     reject(state.status)
                 })
         })
-       
+
     },
-    [USER_UPDATE]: ({ commit, dispatch, rootState }) => {
-      //  api.defaults.headers.common['Authorization'] = 'Bearer ' + rootState.auth.token
-        commit(USER_UPDATE)
-        api.put('/user/account')
+    [USER_UPDATE]: ({ commit, dispatch, rootState }, user) => {
+        api.defaults.headers.common['Authorization'] = 'Bearer ' + rootState.auth.token
+        return new Promise((resolve, reject)=>{
+            commit(USER_UPDATE)
+            api.put('/user/account', user).then(({ data }) => {
+                console.log('Success change credentials ', data);
+
+                    commit(USER_UPDATE_SUCCESS, data)
+                    dispatch(USER_REQUEST)
+                    resolve(state.status)
+            }) .catch(resp => {
+                console.log("error");
+                commit(USER_UPDATE_ERROR)
+                
+                reject(state.status)
+            })
+        })
+
     }
 
 }
@@ -68,14 +82,14 @@ const mutations = {
     [AUTH_LOGOUT]: (state) => {
         state.profile = {}
     },
-    [USER_UPDATE]: (state)=>{
+    [USER_UPDATE]: (state) => {
         state.status = 'loading'
     },
     [USER_UPDATE_SUCCESS]: (state, data) => {
         state.status = 'success'
         Vue.set(state, 'profile', data)
     },
-    [USER_UPDATE_ERROR]: (state)=>{
+    [USER_UPDATE_ERROR]: (state) => {
         state.status = 'error'
     }
 }

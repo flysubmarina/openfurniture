@@ -1,10 +1,29 @@
+<i18n>
+{
+  "en": {
+    "Buy rooms": "Buy rooms"
+  },
+  "ua": {
+    "Controll my rooms": "Керування моїми кімнатами",
+    "You have not buy any room": "Ви не купили жодної кімнати",
+    "Room number:":"Кімната номер:",
+    "Get Started": "Розпочати",
+    "You have not buy any room":"Ви не купили жодної кімнати",
+    "Delete this room":"Видалити цю кімнату",
+    "Height:":"Висота"
+  }
+}
+</i18n>
+
+
+
 <template>
   <b-container class="bv-example-row">
     <b-row>
       <b-col cols="8">
-        <h1 class="my-4">Controll my rooms</h1>
+        <h1 class="my-4">{{$t('Controll my rooms')}}</h1>
         <b-card v-if="rooms.length == 0">
-          <p class="card-text text-center">You have not buy any room</p>
+          <p class="card-text text-center">{{$t('You have not buy any room')}}</p>
         </b-card>
         <template v-for="room in rooms">
           <b-card class="mb-1" :key="room[0]">
@@ -14,7 +33,7 @@
                 href="#"
                 v-b-toggle="'collapse'+room[0]"
                 variant="info"
-              >Room number: {{room[1][0].num}}</b-btn>
+              >{{$t('Room number:')}} {{room[1][0].num}}</b-btn>
             </b-card-header>
             <b-collapse :id="'collapse'+room[0]" visible accordion="my-accordion" role="tabpanel">
               <b-card-body>
@@ -39,27 +58,28 @@
                     >{{roomUnlock[room[0]*10 + index].unlock}}</b-form-checkbox>
                     <label
                       for="'range'+ room[0] + index"
-                    >Height: {{roomUnlock[room[0]*10 + index].height}}</label>
+                    >{{$t('Height:')}} {{roomUnlock[room[0]*10 + index].height}}</label>
                     <b-form-input
+                    @input="setHeightEvent(roomUnlock[room[0]*10 + index].unlock)"
                       :disabled="isBusy"
                       type="range"
                       :id="'range'+ room[0]*10 + index"
                       v-model="roomUnlock[room[0]*10 + index].height"
                       min="0"
-                      max="100"
+                      max="200"
                     />
                     <b-button
                       variant="success"
                       :disabled="isBusy"
                       @click="handleSetStateClick(room[0]*10 + index, furniture.id)"
-                    >Set State</b-button>
+                    >{{$t('Save State')}}</b-button>
                   </b-card>
                   <b-button
                     class="mx-auto my-auto"
                     variant="danger"
                     :disabled="isBusy"
                     @click="handleDelete(room[0])"
-                  >Delete this room</b-button>
+                  >{{$t('Delete this room')}}</b-button>
                 </b-card-group>
               </b-card-body>
             </b-collapse>
@@ -71,6 +91,7 @@
 </template>
 
 <script>
+import socketIO from 'socket.io-client'
 import api from "../api/api";
 import { mapGetters } from "vuex";
 import { USER_REQUEST } from "../store/actions/user";
@@ -79,6 +100,7 @@ export default {
   name: "Controll",
   data() {
     return {
+      socket: io('http://localhost:3000/clients'),
       isBusy: false,
       roomUnlock: [],
       rooms: []
@@ -88,6 +110,7 @@ export default {
     ...mapGetters(["getProfile", "isAuthenticated"])
   },
   mounted() {
+    console.log(this.$i118n);
     if (this.isAuthenticated) {
       this.handleUserRequest()
         .then(res => {
@@ -99,11 +122,16 @@ export default {
     }
   },
   methods: {
+    setHeightEvent(string){
+      console.log(string);
+      console.log("CLIENT WORK");
+    this.socket.emit('set_height', {value: 10, unlock:(string == 'unlock')?1:0})
+    },
     handleDelete(IdRoom) {
       const { IdUser } = this.getProfile;
       this.isBusy = true;
       api
-        .delete(`user/${IdUser}/rooms/${IdRoom}`)
+        .delete(`/user/rooms`, { data: { IdRoom: IdRoom } })
         .then(data => {
           this.loadRooms();
         })
@@ -175,9 +203,8 @@ export default {
     },
     getRooms() {
       return new Promise((resolve, reject) => {
-        const { IdUser } = this.getProfile;
         api
-          .get(`user/${IdUser}/rooms`)
+          .get(`user/rooms`)
           .then(res => {
             resolve(res);
           })

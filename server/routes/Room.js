@@ -1,11 +1,35 @@
 const express = require('express')
+const axios =  require('axios')//Old man coded 7 03 2019
 const query = require('../dbConnector')
 const router = express.Router();
-
+const FurnitureController = require('../store_actions/FurnitureController')
+const { setFurnitureHeight, getFurnitureHeight } = FurnitureController
 router.use(function timeLog(req, res, next) {
-    console.log("Cookies: ", req.cookies)
+    console.log("Body: ", req.body)
     next();
 });
+
+router.route('/setroom').post((req, res) => {
+    const { IdRoom, height, unlock } = req.body;
+    query(`update room_furniture set room_furniture.height='${height}', room_furniture.unlock='${unlock}' where room_furniture.IdUser='${IdRoom}'`).then(result => {
+        res.send({ updated: result.affectedRows > 0 })
+    })
+})
+
+router.route('/setparams').put((req, res) => {
+    const { IdUser } = req.user;
+    const { height } = req.body;
+    query(`UPDATE
+    room_furniture t1
+    JOIN
+    user_room t2 ON t1.IdRoom=t2.IdRoom 
+SET
+    t1.height='${height}'
+WHERE t2.IdUser='${IdUser}'`).then(result => {
+        res.send({ updated: result.affectedRows > 0 })
+    })
+})
+
 
 const getAppropriateRooms = (req) => {
     return new Promise((resolve, reject) => {
@@ -33,11 +57,18 @@ const getAvailiableRooms = () => {
     })
 }
 router.route('/setstate')
-      .put((req, res) => {
-          console.log('gg')
+    .put((req, res) => {
         const { id, height, unlock } = req.body
         query(`update room_furniture set room_furniture.height='${height}', room_furniture.unlock='${unlock}' where room_furniture.id='${id}'`).then(result => {
-            res.send({ updated: result.affectedRows > 0 })
+            res.send(result)
+            // axios.post('http://localhost:3002/setstate', { height, unlock })
+            //     .then(data => {
+            //         let json = CircularJSON.stringify(data.status)
+            //         res.send(json)
+            //     }).catch(err => {
+            //         console.log(err);
+            //         res.send("error")
+            //     })
         })
     })
 
@@ -57,21 +88,13 @@ router.route('/good').get((req, res) => {
 })
 
 
-router.route('/:IdRoom?')
+router.route('/')
     .get((req, res) => {
-        const { IdRoom } = req.params
-        if (!IdRoom) {
-            query('select * from room').then(data => {
-                res.send(data)
-            })
-        }
-        else {
-            query(`select * from room where IdRoom='${IdRoom}'`).then(data => {
-                res.send(data)
-            }).catch(err => {
-                console.log(err)
-            })
-        }
+        query(`select * from room`).then(data => {
+            res.send(data)
+        }).catch(err => {
+            console.log(err)
+        })
     }).post((req, res) => {
         const { num } = req.body
         query(`select * from room where num='${num}'`).then(data => {
@@ -87,14 +110,14 @@ router.route('/:IdRoom?')
         })
 
     }).delete((req, res) => {
-        const { IdRoom } = req.params
+        const { IdRoom } = req.body
         if (IdRoom) {
             query(`delete from room where IdRoom='${IdRoom}'`).then(data => {
                 res.send(data)
             })
         }
     }).put((req, res) => {
-        const { IdRoom } = req.params
+        const { IdRoom } = req.body
         const { num } = req.body
         if (IdRoom) {
             query(`select * from room where num='${num}'`).then(data => {
@@ -114,29 +137,16 @@ router.route('/:IdRoom?')
 
 
 
-router.route('/:IdRoom?/furniture')
+router.route('/furniture')
     .get((req, res) => {
-        const { IdRoom } = req.params
-        const { IdFurniture, id } = req.body
-        if (!IdRoom || !id) {
-            res.status(500).send({ err: 'Invalid room id' })
-        } else {
-            if (!IdFurniture) {
-                query(`select * from room inner join room_furniture on room.IdRoom=room_furniture.IdRoom ` +
-                    `inner join furniture on room_furniture.IdFurniture = furniture.IdFurniture where room.IdRoom='${IdRoom}'`)
-                    .then(data => {
-                        res.send(data)
-                    })
-            } else {
-                query(`select * from room inner join room_furniture on room.IdRoom=room_furniture.IdRoom ` +
-                    `inner join furniture on room_furniture.IdFurniture = furniture.IdFurniture where room_furniture.id='${id}'`)
-                    .then(data => {
-                        res.send(data)
-                    })
-            }
-        }
+        query(`select * from room inner join room_furniture on room.IdRoom=room_furniture.IdRoom ` +
+            `inner join furniture on room_furniture.IdFurniture = furniture.IdFurniture`)
+            .then(data => {
+                res.send(data)
+            })
+
     }).post((req, res) => {
-        const { IdRoom } = req.params
+        const { IdRoom } = req.body
         const { IdFurniture } = req.body
         if (!IdFurniture || !IdRoom) {
             res.status(500).send({ err: 'Invalid data' })
@@ -152,6 +162,15 @@ router.route('/:IdRoom?/furniture')
         } else {
             query(`delete from room_furniture where id='${id}'`).then(data => {
                 res.send({ deleted: data.affectedRows > 0 })
+            })
+        }
+    }).put((req, res) => {
+        const { id, IdFurniture, IdRoom } = req.body
+        if (!id) {
+            res.status(500).send({ err: 'Invalid data' })
+        } else {
+            query(`update room_furniture set where id='${id}'`).then(data => {
+                res.send({ updated: data.affectedRows > 0 })
             })
         }
     })

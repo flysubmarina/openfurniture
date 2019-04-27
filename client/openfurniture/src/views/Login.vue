@@ -64,7 +64,7 @@ export default {
       this.$store
         .dispatch(AUTH_REQUEST, { login, password })
         .then(result => {
-          if (result.err) {
+          if (result.message !="Success login") {
             this.errors = [];
             this.errors.push({ msg: result.err.message });
           } else this.$router.push("/");

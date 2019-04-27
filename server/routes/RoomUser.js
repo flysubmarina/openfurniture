@@ -4,36 +4,21 @@ const router = express.Router({ mergeParams: true });
 
 router.route('/')
     .get((req, res) => {
-        const { IdRoom, IdUser } = req.params
-        if (!IdUser) {
-            res.status(500).send({ err: 'Invalid user id' })
-        } else {
-            if (!IdRoom) {
-                query(`select * from user inner join user_room on user.IdUser=user_room.IdUser ` +
-                    `inner join room on user_room.IdRoom=room.IdRoom inner join room_furniture on room.IdRoom=room_furniture.IdRoom
+        const { IdUser } = req.user
+        query(`select * from user inner join user_room on user.IdUser=user_room.IdUser ` +
+            `inner join room on user_room.IdRoom=room.IdRoom inner join room_furniture on room.IdRoom=room_furniture.IdRoom
                     inner join furniture on room_furniture.IdFurniture=furniture.IdFurniture where user.IdUser='${IdUser}'`)
-                    .then(data => {
-                        if (data.length == 0) res.send({ err: 'User do not live in any room right now' })
-                        else {
-                         //   const { login, type, IdRoom, IdUser, num } = data[0];
-                            res.send(data)
-                        }
-
-                    })
-            } else {
-                query(`select * from user inner join user_room on user.IdUser=user_room.IdUser ` +
-                    `inner join room on user_room.IdRoom=room.IdRoom where room.IdRoom='${IdRoom}' and user.IdUser='${IdUser}'`)
-                    .then(data => {
-                        if (data.length == 0) res.send({ err: 'User do not live in this room' })
-                        else {
-                            const { login, type, IdRoom, IdUser, num } = data[0];
-                            res.send({ login, type, IdRoom, IdUser, num })
-                        }
-                    })
-            }
-        }
+            .then(data => {
+                if (data.length == 0) res.send({ err: 'User do not live in any room right now' })
+                else {
+                    //   const { login, type, IdRoom, IdUser, num } = data[0];
+                    console.log(data);
+                    res.send(data)
+                }
+            })
     }).post((req, res) => {
-        const { IdRoom, IdUser } = req.params
+        const { IdUser } = req.user;
+        const { IdRoom } = req.body;
         if (!IdUser || !IdRoom) {
             res.status(500).send({ err: 'Invalid data' })
         } else {
@@ -64,7 +49,8 @@ router.route('/')
         }
 
     }).delete((req, res) => {
-        const { IdRoom, IdUser } = req.params
+        const {  IdUser } = req.user;
+        const {IdRoom} = req.body;
         if (!IdUser || !IdRoom) {
             res.status(500).send({ err: 'Invalid data' })
         } else {
